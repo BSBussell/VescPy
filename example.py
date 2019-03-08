@@ -4,18 +4,35 @@ import VescPy
 Arduino = VescPy.VESC()
 
 def setup():
-    Arduino.setAngle(95)
-    Arduino.setThrottle(100)
+    Arduino.setAngle(90)
+    Arduino.setThrottle(10)
 
 def update():
     Arduino.update()
 
 setup()
 deltaTime = time.time()
-while (time.time()-deltaTime<5):
-    update()
+update()
+time.sleep(5)
+
+Arduino.setThrottle(-10,100)
+deltaTime = time.time()
+update()
+time.sleep(5)
 
 
-Arduino.setThrottle(0)
-while (time.time()-deltaTime<5):
-    update()
+'''
+
+int a;
+
+byte high = (byte)(a >> 8)
+byte low = (byte)(a&0xFF)
+
+
+
+high
+
+high << 8 + low
+
+
+'''
