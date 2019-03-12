@@ -49,8 +49,8 @@ class VESC:
 
         '''
 
-
-
+        bytes([167, 105])
+        
         self.ardu.write(("T"+str(chr(self.throttleValue))).encode())
         self.ardu.write(("S"+str(chr(self.angleValue))).encode())
 
