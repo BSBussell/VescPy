@@ -10,49 +10,32 @@ class VESC:
         time.sleep(4)
 
 
-        self.throttleValue = 90
+        self.throttleValue = 1500
         self.angleValue = 90
 
-        self.throttleSmoothing = 100
-        self.angleSmoothing = 100
+        self.throttleSmoothing = 1
+        self.angleSmoothing = 1
 
 
-        self.throttleBase = 90
+        self.throttleBase = 1500
 
         self.update()
 
         print(" Successful initialisation")
 
     def __del__(self):
-        self.ardu.write(("T" + str(chr(90))).encode())
-        self.ardu.write("SZ".encode())
+        self.ardu.write(self.buildPacket('T',1500))
+        self.ardu.write(self.buildPacket('S',90))
 
         self.ardu.close()
         print(" Successful Destruction")
 
     def update(self):
 
-        '''
-        self.throttleDelta = self.throttleGoal-self.throttleValue
-        self.angleDelta = self.angleGoal-self.angleValue
-
-        self.throttleSign = abs(self.throttleDelta)/self.throttleDelta
-        self.angleSign = abs(self.angleDelta)/self.angleDelta
 
 
-        if (abs(self.throttleDelta) >self.smoothing):
-            self.throttleValue += self.smoothing*self.throttleSign
-
-        if (abs(self.angleDelta) > self.smoothing):
-            self.angleValue += self.smoothing*self.angleSign
-
-
-        '''
-
-        bytes([167, 105])
-        
-        self.ardu.write(("T"+str(chr(self.throttleValue))).encode())
-        self.ardu.write(("S"+str(chr(self.angleValue))).encode())
+        self.ardu.write(self.buildPacket('T',self.throttleValue))
+        self.ardu.write(self.buildPacket('S',self.angleValue))
 
         print("Throttle: ")
         print(self.throttleValue)
@@ -61,10 +44,10 @@ class VESC:
 
     def setThrottle(self, Value, Delta=None):
 
-        self.throttleValue = self.throttleBase+Value
+        self.throttleValue = Value
         if (Delta):
             self.throttleSmoothing = Delta
-            self.ardu.write(("t"+str(chr(self.throttleSmoothing))).encode())
+            self.ardu.write(self.buildPacket('t', self.throttleSmoothing))
 
 
     def setAngle(self, Value, Delta=None):
@@ -72,7 +55,22 @@ class VESC:
         self.angleValue = Value
         if (Delta):
             self.angleSmoothing = Delta
-            self.ardu.write(("s"+str(chr(self.angleSmoothing))).encode())
+            self.ardu.write(self.buildPacket('s', self.angleSmoothing))
 
 
+    def readThrottle(self):
 
+        return self.ardu.write('R00')
+
+    def readAngle(self):
+
+        return self.ardu.write('r00')
+
+    def buildPacket(self, char, value):
+
+        self.Low = (value >> 8) & 0xFF
+        self.High = value & 0xFF
+
+        self.Packet = bytes([ord(char), self.Low, self.High])
+
+        return self.Packet
