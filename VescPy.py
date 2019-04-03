@@ -17,8 +17,6 @@ class VESC:
         self.angleSmoothing = 1
 
 
-        self.throttleBase = 1500
-
         self.update()
 
         print(" Successful initialisation")
@@ -34,13 +32,11 @@ class VESC:
 
 
 
-        self.ardu.write(self.buildPacket('T',self.throttleValue))
-        self.ardu.write(self.buildPacket('S',self.angleValue))
+        self.ardu.write(self.buildPacket('T', self.throttleValue))
+        self.ardu.write(self.buildPacket('S', self.angleValue))
 
         print("Throttle: ")
         print(self.throttleValue)
-        print("EnCoding: ")
-        print(("T"+str(chr(self.throttleValue))).encode('utf-8'))
 
     def setThrottle(self, Value, Delta=None):
 
@@ -60,11 +56,13 @@ class VESC:
 
     def readThrottle(self):
 
-        return self.ardu.write('R00')
+        self.ardu.write('R00'.encode())
+        return self.ardu.readline().decode()
 
     def readAngle(self):
 
-        return self.ardu.write('r00')
+        self.ardu.write('r00'.encode())
+        return self.ardu.readline().decode()
 
     def buildPacket(self, char, value):
 

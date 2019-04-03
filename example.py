@@ -2,21 +2,27 @@ import time
 import VescPy
 
 Arduino = VescPy.VESC()
-
-def setup():
-    Arduino.setAngle(160)
-    Arduino.setThrottle(1500)
-
 def update():
     Arduino.update()
 
-setup()
-deltaTime = time.time()
-update()
-time.sleep(5)
+def loop():
+    argument = '1500'
+    print("Type 'exit' to end ")
+    while (argument != 'exit'):
+        argument = input('Set Throttle: ')
+        if (argument == "exit"):
+            break
+        if (argument == "read"):
+            print(Arduino.readThrottle())
+        else:
+            Arduino.setThrottle(int(argument))
+            update()
+            time.sleep(2)
 
-Arduino.setThrottle(1500)
-update()
+
+
+
+loop()
 time.sleep(5)
 
 
