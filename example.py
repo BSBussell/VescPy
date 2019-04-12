@@ -2,28 +2,32 @@ import time
 import VescPy
 
 Arduino = VescPy.VESC()
-def update():
-    Arduino.update()
 
 def loop():
     argument = '1500'
     print("Type 'exit' to end ")
-    while (argument != 'exit'):
+    while (1):
         argument = input('Set Throttle: ')
-        if (argument == "exit"):
-            break
-        if (argument == "read"):
-            print(Arduino.readThrottle())
-        else:
-            Arduino.setThrottle(int(argument))
-            update()
-            time.sleep(2)
+        print(chr(27) + "[2J")
+        try:
+            if argument == "exit":
+                break
+            if argument == "read":
+                print(Arduino.readThrottle())
+            else:
+                Arduino.accelerate(int(argument))
+
+                #time.sleep(2)
+        except(RuntimeError, TypeError, NameError, ValueError):
+            print("Invalid Input")
 
 
 
+
+
+Arduino.setAngle(90)
 
 loop()
-time.sleep(5)
 
 
 
