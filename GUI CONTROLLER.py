@@ -11,6 +11,8 @@ textThrottle = StringVar()
 textThrottle.set(str(throttle))
 
 
+angle = 90
+
 textPhysical = StringVar()
 textPhysical.set(str(throttle))
 
@@ -22,27 +24,43 @@ def read():
     textPhysical.set(str(Arduino.readThrottle()))
     refresh()
 
-def refresh():
+def refresh(event = None):
     Arduino.update()
 
-def increment():
+def increment(event=None):
     global throttle
     global throttleValue
-    throttle += 1
+    throttle += 5
     Arduino.accelerate(throttle)
     textThrottle.set(str(throttle))
-    refresh()
+    #refresh()
 
-def decrement():
+def decrement(event=None):
     global throttle
     global throttleValue
-    throttle -= 1
+    throttle -= 5
     Arduino.accelerate(throttle)
     textThrottle.set(str(throttle))
+    #refresh()
+
+def left(event = None):
+    global angle
+    angle -= 10
+    Arduino.setAngle(angle)
+    refresh()
+
+def right(event = None):
+    global angle
+    angle += 10
+    Arduino.setAngle(angle)
     refresh()
 
 
 
+win.bind('<Up>', increment)
+win.bind('<Down>', decrement)
+win.bind('<Left>', left)
+win.bind('<Right>', right)
 subtract = Button(master, text="<", command=decrement, repeatdelay=500, repeatinterval=50)
 throttleValue = Label(master, textvariable=textThrottle)
 add = Button(master, text=">", command=increment, repeatdelay=500, repeatinterval=50)

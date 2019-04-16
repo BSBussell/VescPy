@@ -24,14 +24,14 @@ class VESC:
 
         self.update()
 
-        self.threadStack = Timer(2.0, self.update())
+        self.directionChangeThread = Timer(1.0, self.directionChange, [0])
 
         print(" Successful initialisation")
 
     def __del__(self):
 
-        if self.threadStack.is_alive():
-            self.threadStack.cancel()
+        if self.directionChangeThread.is_alive():
+            self.directionChangeThread.cancel()
 
         self.ardu.write(self.buildPacket('T', self.throttleNeutral))
         self.ardu.write(self.buildPacket('S', 90))
@@ -49,45 +49,23 @@ class VESC:
         self.ardu.write(self.buildPacket('T', self.throttleChange))
         self.ardu.write(self.buildPacket('S', self.angleValue))
 
-        print("Throttle: ")
-        print(self.throttleChange)
 
     def accelerate(self, Value):
 
-        if self.threadStack.is_alive():
-            self.threadStack.cancel()
+        if self.directionChangeThread.is_alive():
+            self.directionChangeThread.cancel()
 
-        if (int(self.readThrottle())-self.throttleNeutral) > 0 and Value < 0:
-            self.directionChange(Value)
-            self.waitTime = 2.0
+        self.waitTime = 2.0
+        if (int(self.readThrottle())-self.throttleNeutral) >= 0 and Value < 0:
+            self.directionChangeThread = Timer(0.01, self.directionChange, [Value])
+            self.directionChangeThread.start()
         else:
-            self.waitTime = 2.0
-
-        #self.threadStack = Timer(self.waitTime, self.update())
-        self.throttleValue = Value
-        self.threadStack.start()
-
-    '''def reverse(self, Value):
-
-        self.threadStack.cancel()
-        self.threadStack = Timer(2.0, self.update())
-
-        if self.throttleValue > 0:
-            self.throttleValue = 0
+            self.throttleValue = Value
             self.update()
-            
-            while (self.readThrottle() != self.throttleValue):
-                pass
-            self.throttleValue = Value
-            self.threadStack.start()
-            
-        else:
-            self.throttleValue = Value
-            self.threadStack.start()
 
-    '''
 
-    def setThrottle(self, Value, Delta=None):
+
+    def setThrottle(self, Value: int, Delta=None):
 
         self.throttleValue = Value - self.throttleNeutral
 
@@ -98,18 +76,19 @@ class VESC:
 
 
 
-    def setAngle(self, Value, Delta=None):
+    def setAngle(self, Value: int, Delta=None):
 
         self.angleValue = Value
+
         if (Delta):
             self.angleSmoothing = Delta
             self.ardu.write(self.buildPacket('s', self.angleSmoothing))
 
 
-    def readThrottle(self):
+    def readThrottle(self) -> int:
 
         self.ardu.write('R00'.encode())
-        return self.ardu.readline().decode()
+        return int(self.ardu.readline().decode())
 
     def readAngle(self):
 
@@ -128,9 +107,12 @@ class VESC:
 
     def directionChange(self, Value):
 
-        self.throttleValue = Value
+        self.throttleValue = -120
         self.update()
         time.sleep(.25)
         self.throttleValue = 0
         self.update()
         time.sleep(.25)
+        self.throttleValue = Value
+        self.update()
+

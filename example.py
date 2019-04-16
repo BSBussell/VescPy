@@ -18,7 +18,7 @@ def loop():
                 Arduino.accelerate(int(argument))
 
                 #time.sleep(2)
-        except(RuntimeError, TypeError, NameError, ValueError):
+        except( ValueError):
             print("Invalid Input")
 
 
