@@ -59,7 +59,7 @@ class VESC:
         self.update()
 
         # A Seperate thread for queuing complex direction Changes.
-        self.directionChangeThread = Thread(target=self.directionChange, args=(0))
+        self.directionChangeThread = Thread(target=self.directionChange, args=(0,))
 
         # If nothing catches fire you'll get here.
         print(" Successful initialisation")
@@ -69,7 +69,7 @@ class VESC:
 
         # kill anything in the queue
         if self.directionChangeThread.is_alive():
-            self.directionChangeThread.cancel()
+            self.directionChangeThread.join()
 
         # As long as it's properly calibrates
         # self.buildPacket is explained in the update function bellow.
@@ -109,17 +109,13 @@ class VESC:
 
     def accelerate(self, Value: int):
 
-        # This checks if anything was recently queued and deletes it
-        # So your new commands are prioritized and old commands are prioritized
-        if self.directionChangeThread.is_alive():
-            self.directionChangeThread.cancel()
 
         # This is pretty much a check to see if the throttle is going from acceleration
         # To full reverse
         if (self.readThrottle() - self.throttleNeutral) >= 0 > Value:
             # Calls the weird steps required to register reverse and makes sure they don't
             # Freeze up the program by calling them on a separate thread.
-            self.directionChangeThread = Thread(target=self.directionChange, args=(Value))
+            self.directionChangeThread = Thread(target=self.directionChange, args=(Value,))
             self.directionChangeThread.start()
         else:
             # Should be self explanatory
@@ -175,6 +171,37 @@ class VESC:
 
         self.ardu.write('r00'.encode())
         return int(self.ardu.readline().decode())
+
+    def readGyro(self):
+
+        self.ardu.write('G00'.encode())
+        list = {
+            'x': float(self.ardu.readline().decode()),
+            'y': float(self.ardu.readline().decode()),
+            'z': float(self.ardu.readline().decode())
+        }
+        return list
+
+    def readAccel(self):
+
+        self.ardu.write('A00'.encode())
+        list = {
+            'x': float(self.ardu.readline().decode()),
+            'y': float(self.ardu.readline().decode()),
+            'z': float(self.ardu.readline().decode())
+        }
+        return list
+
+    def readMag(self):
+
+        self.ardu.write('m00'.encode())
+        list = {
+            'x': float(self.ardu.readline().decode()),
+            'y': float(self.ardu.readline().decode()),
+            'z': float(self.ardu.readline().decode())
+        }
+        return list
+
 
 
     '''

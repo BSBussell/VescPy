@@ -26,5 +26,5 @@ def loop():
 
 
 Arduino.setAngle(90)
-
+print(Arduino.readGyro())
 loop()
