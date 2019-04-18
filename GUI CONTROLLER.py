@@ -56,7 +56,6 @@ def right(event = None):
     refresh()
 
 
-
 win.bind('<Up>', increment)
 win.bind('<Down>', decrement)
 win.bind('<Left>', left)

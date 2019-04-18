@@ -28,23 +28,3 @@ def loop():
 Arduino.setAngle(90)
 
 loop()
-
-
-
-
-
-
-'''
-
-int a;
-
-byte high = (byte)(a >> 8)
-byte low = (byte)(a&0xFF)
-
-
-
-high
-
-high << 8 + low
-
-'''

@@ -9,21 +9,20 @@ master = Frame(win)
 
 Arduino = VescPy.VESC()
 
-def refresh():
-    Arduino.update()
 
 def neutral():
     Arduino.setThrottle(1500)
-    refresh()
+    #Arduino.update()
 
 def fullAcceleration():
     Arduino.setThrottle(2000)
-    refresh()
+    #Arduino.update()
 
 def fullReverse():
     Arduino.setThrottle(0)
-    refresh()
+    #Arduino.update()
 
+# TODO: Find if this can be implemented without uneccessary functions.
 reverseButton = Button(master, text="Reverse", command=fullReverse)
 neutralButton = Button(master, text="Neutral", command=neutral)
 accelerationButton = Button(master, text="Full Throttle", command=fullAcceleration)
@@ -31,6 +30,7 @@ accelerationButton = Button(master, text="Full Throttle", command=fullAccelerati
 reverseButton.pack(side=LEFT,padx=10)
 neutralButton.pack(side=LEFT,padx=10)
 accelerationButton.pack(side=LEFT,padx=10)
+
 
 l = Label(win, text="Calibration for the ESC")
 l2 = Label(win, text="Make sure low voltage mode is disabled and unplug and plug back in the battery")
