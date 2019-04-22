@@ -28,7 +28,9 @@ class VESC:
             I haven't messed with smoothing much since final release and neither should you.
     '''
 
-    def __init__(self):
+    def __init__(self, debug = False):
+
+        self.debug = debug
 
         try:
             # This port should be the one on the right side of your computer. Hopefully your using the right one.
@@ -38,8 +40,9 @@ class VESC:
 
         except(FileNotFoundError, serial.SerialException):
 
-            print("Serial Port Unavailable Initialisation Failed... Your Codes About to Go To Shit")
-            return
+            print("No Open Serial Port Could be found entering debug mode")
+            self.debug = True
+            #return
 
         # Everytime I try making this work as a time for a seperate timer it breaks everything else.
         time.sleep(4)
@@ -73,8 +76,9 @@ class VESC:
 
         # As long as it's properly calibrates
         # self.buildPacket is explained in the update function bellow.
-        self.ardu.write(self.buildPacket('T', self.throttleNeutral))
-        self.ardu.write(self.buildPacket('S', 90))
+        if (self.debug == False):
+            self.ardu.write(self.buildPacket('T', self.throttleNeutral))
+            self.ardu.write(self.buildPacket('S', 90))
 
         # Close Port so no longer connected.
         self.ardu.close()
@@ -96,8 +100,12 @@ class VESC:
         # self.buildPacket() takes two arguments one is a character the other is a number. It then converts this
         # into bytes that can be read by the Arduino.
         # self.ardu.write() simply "writes" these bytes to the XL5
-        self.ardu.write(self.buildPacket('T', self.throttleChange))
-        self.ardu.write(self.buildPacket('S', self.angleValue))
+        if (self.debug == False):
+            self.ardu.write(self.buildPacket('T', self.throttleChange))
+            self.ardu.write(self.buildPacket('S', self.angleValue))
+        #else:
+            #print("Throttle: ", self.throttleChange)
+            #print("Angle:", self.angleValue)
 
     '''
         Function: self.accelerate( Speed)
@@ -136,7 +144,10 @@ class VESC:
         self.throttleValue = Value - self.throttleNeutral
 
         # I did this for a reason I can't remember and when I take it out the code breaks
-        self.ardu.write(self.buildPacket('T', Value))
+        if (self.debug == False):
+            self.ardu.write(self.buildPacket('T', Value))
+        #else:
+            #print("Throttle Set: ", Value)
 
         # Sends and sets Delta when you need it but DON'T
         if (Delta):
@@ -164,8 +175,11 @@ class VESC:
     '''
     def readThrottle(self) -> int:
 
-        self.ardu.write('R00'.encode())
-        return int(self.ardu.readline().decode())
+        if (self.debug == False):
+            self.ardu.write('R00'.encode())
+            return int(self.ardu.readline().decode())
+        else:
+            return self.throttleValue+self.throttleNeutral
 
     def readAngle(self) -> int:
 
